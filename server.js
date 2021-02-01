@@ -33,8 +33,10 @@ app.prepare().then(() => {
   server.use(
     createShopifyAuth({
       afterAuth(ctx) {
-        const { shop, accessToken } = ctx.session;
-        ctx.redirect('/');
+        const urlParams = new URLSearchParams(ctx.request.url);
+        const shop = urlParams.get('shop');
+
+        ctx.redirect(`/?shop=${shop}`);
       },
     }),
   );

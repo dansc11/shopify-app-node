@@ -13,7 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@shopify/app-bridge-react": "^1.28.0",
     "@shopify/koa-shopify-auth": "^3.2.0",
+    "@shopify/polaris": "^6.0.1",
     "@shopify/shopify-api": "^0.3.0",
     "dotenv": "^8.2.0",
     "isomorphic-fetch": "^3.0.0",
@@ -21,6 +23,7 @@
     "koa-session": "^6.1.0",
     "next": "^10.0.6",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "webpack": "^4.46.0"
   }
 }
