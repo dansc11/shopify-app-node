@@ -6,6 +6,7 @@ const { default: createShopifyAuth, initializeShopifyKoa } = require('@shopify/k
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const { default: Shopify, ApiVersion } = require('@shopify/shopify-api');
+const getSubscriptionUrl = require('./server/getSubscriptionUrl');
 
 dotenv.config();
 
@@ -32,11 +33,12 @@ app.prepare().then(() => {
 
   server.use(
     createShopifyAuth({
-      afterAuth(ctx) {
-        const urlParams = new URLSearchParams(ctx.request.url);
-        const shop = urlParams.get('shop');
+      async afterAuth(ctx) {
+        const { shop, accessToken } = ctx.state.shopify;
 
-        ctx.redirect(`/?shop=${shop}`);
+        const returnUrl = `https://${Shopify.Context.HOST_NAME}?shop=${shop}`;
+        const subscriptionUrl = await getSubscriptionUrl(accessToken, shop, returnUrl);
+        ctx.redirect(subscriptionUrl);
       },
     }),
   );
