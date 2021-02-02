@@ -2,7 +2,7 @@ require('isomorphic-fetch');
 const dotenv = require('dotenv');
 const Koa = require('koa');
 const next = require('next');
-const { default: createShopifyAuth, initializeShopifyKoa } = require('@shopify/koa-shopify-auth');
+const { default: createShopifyAuth, initializeShopifyKoaMiddleware } = require('@shopify/koa-shopify-auth');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const { default: Shopify, ApiVersion } = require('@shopify/shopify-api');
@@ -18,7 +18,7 @@ Shopify.Context.initialize({
   IS_EMBEDDED_APP: true,
   SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
 });
-initializeShopifyKoa(Shopify.Context);
+initializeShopifyKoaMiddleware(Shopify.Context);
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
@@ -42,6 +42,13 @@ app.prepare().then(() => {
   );
 
   server.use(verifyRequest());
+  server.use(async (ctx, next) => {
+    if (ctx.method === 'POST' && ctx.path === '/graphql') {
+      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+    } else {
+      await next();
+    }
+  });
   server.use(async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
